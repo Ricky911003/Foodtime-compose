@@ -40,6 +40,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
 
+
 // 定义 Note2 数据类
 data class Note2(val id: Int, val productname: String, var number: Int)
 
