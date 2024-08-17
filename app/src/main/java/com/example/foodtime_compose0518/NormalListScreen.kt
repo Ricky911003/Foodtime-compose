@@ -1,201 +1,213 @@
 package com.example.foodtime_compose0518
 
-import Padding16dp
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
+import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
+import com.example.foodtime_compose0518.ui.theme.displayFontFamily
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.sp
 
-//class NormalListScreen : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContent {
-//            Foodtime_compose0518Theme {
-//                // A surface container using the 'background' color from the theme
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    Normallist(navController = navController)
-//                }
-//            }
-//        }
-//    }
-//}
+// 定义 Note2 数据类
+data class Note2(val id: Int, val productname: String, var number: Int)
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NoteItem2(
+    note: Note2,
+    cover1: Int,
+    onClick: (Note2) -> Unit,
+    onRemove: (Note2) -> Unit
+) {
+    val context = LocalContext.current
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            when (it) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onRemove(note)
+                    Toast.makeText(context, "項目已刪除", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
+        },
+        positionalThreshold = { it * .25f }
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        content = {
+            NoteContent(note, cover1, onClick)
+        },
+        backgroundContent = { DismissBackground(dismissState) },
+    )
+}
 
 @Composable
-fun Normallist(navController: NavController) {
-    Box(
+fun NoteContent(note: Note2, cover1: Int, onClick: (Note2) -> Unit) {
+    val quantity = remember { mutableStateOf(note.number.toString()) }
+
+    Row(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 0.dp)
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .background(MaterialTheme.colorScheme.background),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
     ) {
-        Column(
+        Image(
+            painter = painterResource(cover1),
+            contentDescription = "Note cover 1",
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(top = 16.dp)
+                .size(50.dp)
+                .padding(start = 16.dp)
+                .clickable { onClick(note) }
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = note.productname,
+            fontFamily = displayFontFamily,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.weight(1f)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 10.dp)
-            ) {
-                // Image and Text
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.broccoli),
-                        contentDescription = "Navigation Menu",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(12.dp)
-                    )
-                    Text(
-                        text = "花椰菜",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 12.dp)
-                    )
+            IconButton(onClick = {
+                if (note.number > 0) {
+                    note.number--
+                    quantity.value = note.number.toString()
                 }
-
-                // Buttons
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Spacer(modifier = Modifier.width(20.dp))
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = "Localized description")
-                    }
-                    OutlinedTextField(
-                        value = "1",
-                        onValueChange = {},
-                        label = { },
-                        modifier = Modifier
-                            .width(120.dp)
-                            .padding(horizontal = 8.dp),
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                    )
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Outlined.Clear, contentDescription = "Localized description")
-                    }
-                }
+            }) {
+                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少数量")
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 20.dp)
-            ) {
-                // Image and Text
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.meat),
-                        contentDescription = "Navigation Menu",
-                        modifier = Modifier
-                            .size(65.dp)
-                            .padding(12.dp)
-                    )
-                    Text(
-                        text = "豬肉",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 12.dp)
-                    )
-                }
-
-                // Buttons
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Spacer(modifier = Modifier.width(20.dp))
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.Outlined.KeyboardArrowUp,
-                            contentDescription = "Localized description"
-                        )
+            OutlinedTextField(
+                value = quantity.value,
+                onValueChange = { newValue ->
+                    // 确保输入的是有效的数字
+                    val number = newValue.toIntOrNull()
+                    if (number != null && number >= 0) {
+                        note.number = number
+                        quantity.value = newValue
+                    } else if (newValue.isEmpty()) {
+                        quantity.value = ""
                     }
-                    OutlinedTextField(
-                        value = "1",
-                        onValueChange = {},
-                        label = { },
-                        modifier = Modifier
-                            .width(120.dp)
-                            .padding(horizontal = 8.dp),
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                    )
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = "Localized description"
-                        )
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Outlined.Clear, contentDescription = "Localized description")
-                    }
-                }
-            }
-
-            Padding16dp {
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        navController.navigate("AddFood")
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Filled.Create,
-                            "Extended floating action button."
-                        )
-                    },
-                    text = { Text(text = "新增食材") },
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                modifier = Modifier.width(50.dp),
+                textStyle = TextStyle(
+                    fontFamily = bodyFontFamily,
+                    fontSize = 16.sp
                 )
+            )
+
+            IconButton(onClick = {
+                note.number++
+                quantity.value = note.number.toString()
+            }) {
+                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加数量")
             }
         }
     }
 }
 
 
-@Preview
+
+
+
+
+
+
+
 @Composable
-fun Normallistpreview() {
-    Foodtime0518_Theme {
-        val navController = rememberNavController()
-        Normallist(navController)
+fun NoteList2(navController: NavController) {
+    // 使用 Note2 数据类
+    val notes = remember { mutableStateListOf(
+        Note2(id = 1, productname = "蘋果", number = 5),
+        Note2(id = 2, productname = "花椰菜", number = 2),
+        Note2(id = 3, productname = "牛肉", number = 3),
+        Note2(id = 4, productname = "蘋果", number = 7)
+    ) }
+
+    LazyColumn {
+        items(notes, key = { it.id }) { note ->
+            NoteItem2(
+                note = note,
+                cover1 = R.drawable.apple,
+                onClick = { navController.navigate("FoodDetail") },
+                onRemove = { notes.remove(it) }
+            )
+            Divider()
+        }
     }
+}
+
+
+
+@Composable
+fun Normallist(navController: NavController) {
+    Column {
+        NoteList2(navController = navController)
+        Spacer(modifier = Modifier.weight(1f))
+        Padding16dp {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    navController.navigate("AddFragment")
+                },
+                icon = {
+                    Icon(
+                        Icons.Filled.Add,
+                        "Extended floating action button."
+                    )
+                },
+                text = { Text(text = "新增食材") },
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NormalListPreview() {
+    val navController = rememberNavController()
+    Normallist(navController = navController)
 }
