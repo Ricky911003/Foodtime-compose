@@ -156,7 +156,8 @@ fun HolidayNoteItem(
 @Composable
 fun QuantityController(quantity: Int, onQuantityChange: (Int) -> Unit) {
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp) // 添加固定的間距
     ) {
         IconButton(onClick = {
             if (quantity > 0) onQuantityChange(quantity - 1)
@@ -164,14 +165,20 @@ fun QuantityController(quantity: Int, onQuantityChange: (Int) -> Unit) {
             Icon(Icons.Default.KeyboardArrowDown, contentDescription = "減少數量")
         }
 
-        Text(
-            text = quantity.toString(),
-            modifier = Modifier.width(50.dp),
-            style = TextStyle(
-                fontFamily = bodyFontFamily,
-                fontSize = 20.sp
+        Box(
+            modifier = Modifier
+                .width(40.dp)
+                .align(Alignment.CenterVertically),
+            contentAlignment = Alignment.Center // 文字置中
+        ) {
+            Text(
+                text = quantity.toString(),
+                style = TextStyle(
+                    fontFamily = bodyFontFamily,
+                    fontSize = 20.sp
+                )
             )
-        )
+        }
 
         IconButton(onClick = {
             onQuantityChange(quantity + 1)
@@ -180,6 +187,7 @@ fun QuantityController(quantity: Int, onQuantityChange: (Int) -> Unit) {
         }
     }
 }
+
 
 @Composable
 
@@ -223,11 +231,3 @@ fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayVie
         )
     }
 }
-
-
-
-
-
-
-
-

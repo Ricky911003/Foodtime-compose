@@ -43,6 +43,21 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
     private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
     val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
 
+    private val defaultSettings = listOf(
+        SettingTable(settingDay = 7, settingName = "豆芽菜", settingNotify = true),
+        SettingTable(settingDay = 14, settingName = "牛肉", settingNotify = true),
+        SettingTable(settingDay = 5, settingName = "花椰菜", settingNotify = true),
+        SettingTable(settingDay = 9, settingName = "高麗菜", settingNotify = true),
+        SettingTable(settingDay = 2, settingName = "蛤蜊", settingNotify = false),
+        SettingTable(settingDay = 5, settingName = "鱈魚", settingNotify = false),
+        SettingTable(settingDay = 28, settingName = "雞蛋", settingNotify = false),
+        SettingTable(settingDay = 7, settingName = "茄子", settingNotify = false),
+        SettingTable(settingDay = 30, settingName = "洋蔥", settingNotify = false),
+        SettingTable(settingDay = 12, settingName = "紅蘿蔔", settingNotify = false),
+        SettingTable(settingDay = 5, settingName = "豆腐", settingNotify = false),
+        SettingTable(settingDay = 5, settingName = "魚", settingNotify = false),
+        SettingTable(settingDay = 9, settingName = "番茄", settingNotify = false)
+    )
 
     // 根據設定名稱查詢設定天數
     suspend fun loadAdjustmentDays(settingName: String): Int {

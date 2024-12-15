@@ -136,15 +136,15 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     fontFamily = displayFontFamily
                 )
                 Spacer(modifier = Modifier.width(50.dp))
+
                 IconButton(onClick = {
-                    if (quantity > 1) quantity-- // 確保不會少於1
+                    quantity++ // 增加數量
                 }) {
                     Icon(
-                        Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = "減少數量"
+                        Icons.Outlined.KeyboardArrowUp,
+                        contentDescription = "增加數量"
                     )
                 }
-
                 OutlinedTextField(
                     value = quantity.toString(), // 顯示當前數量
                     onValueChange = {
@@ -157,13 +157,14 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
                 IconButton(onClick = {
-                    quantity++ // 增加數量
+                    if (quantity > 1) quantity-- // 確保不會少於1
                 }) {
                     Icon(
-                        Icons.Outlined.KeyboardArrowUp,
-                        contentDescription = "增加數量"
+                        Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = "減少數量"
                     )
                 }
+
             }
 
             Spacer(modifier = Modifier.height(60.dp))

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
 
@@ -20,9 +19,9 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao,v
     var newHolidayDate: Long = 0L
     val holidayList : Flow<List<HolidayTable>> =dao.getAllUsers().stateIn(
 
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5000),
-    initialValue = emptyList()
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
     )
 
     val holidaydetailList : Flow<List<HolidayDetailTable>> =holidayDetailDao.getAllUsers().stateIn(
@@ -88,11 +87,11 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao,v
 
 
     fun getHolidayDetailsByHolidayId(holidayId: Int): Flow<List<HolidayDetailTable>> {
-            return holidayDetailDao.getDetailsByHolidayId(holidayId).stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
-            )
+        return holidayDetailDao.getDetailsByHolidayId(holidayId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
     }
     fun getHolidayDetailItems(holidayId: Int): Flow<List<HolidayDetailItem>> {
         return getHolidayDetailsByHolidayId(holidayId).map { holidayDetails ->
@@ -108,13 +107,21 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao,v
         }
     }
 
+    fun updateHolidayDate(holidayId: Int, newDateMillis: Long) {
+        viewModelScope.launch {
+            dao.updateHolidayDate(holidayId, newDateMillis)
+        }
+    }
 
-// 新建数据类 HolidayDetailItem
-data class HolidayDetailItem(
-    val holidayDetail: HolidayDetailTable,
-    val itemName: String,
-    val cover1: Int
-)
+
+
+
+    // 新建数据类 HolidayDetailItem
+    data class HolidayDetailItem(
+        val holidayDetail: HolidayDetailTable,
+        val itemName: String,
+        val cover1: Int
+    )
 
 
 
@@ -122,7 +129,3 @@ data class HolidayDetailItem(
 
 
 }
-
-
-
-

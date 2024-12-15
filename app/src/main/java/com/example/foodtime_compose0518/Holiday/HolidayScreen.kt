@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +43,7 @@ import com.example.foodtime_compose0518.TemplateScreen
 import com.example.foodtime_compose0518.convertLongToDateString
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -54,9 +54,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.example.foodtime_compose0518.ImageMapper
+import com.example.foodtime_compose0518.ImageMapper.holidayImageMapping
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,6 +71,7 @@ import kotlin.math.roundToInt
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
+
     val holist = viewModel.holidayList.collectAsState(arrayListOf())
 
     LazyColumn {
@@ -83,19 +88,14 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
                 background = {
-                    val color = if (dismissState.dismissDirection == DismissDirection.EndToStart) {
-                        Color(0xFFFF1744)
-                    } else {
-                        Color.Transparent
-                    }
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(color)
-                            .padding(horizontal = 20.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        if (dismissState.dismissDirection == DismissDirection.EndToStart) {
+                    if (dismissState.dismissDirection == DismissDirection.EndToStart) {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(Color(0xFFFF1744))
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
@@ -108,16 +108,21 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 0.dp)
+                            .background(androidx.compose.material3.MaterialTheme.colorScheme.background),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val holidayImage = ImageMapper.getHolidayImageResourceByName(holiday.holidayName)
                         ListItem(
                             headlineContent = { Text(text = holiday.holidayName) },
                             supportingContent = { Text(convertLongToDateString(holiday.Date)) },
                             leadingContent = {
-                                Icon(
-                                    Icons.Filled.Favorite,
-                                    contentDescription = "Localized description"
+                                Image(
+                                    painter = painterResource(id = holidayImage),
+                                    contentDescription = holiday.holidayName,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .padding(start = 8.dp)
                                 )
                             },
                             modifier = Modifier
@@ -126,20 +131,24 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                                     navController.navigate("HolidayDetail/${holiday.holidayId}")
                                 }
                         )
-                        // 在列表右侧添加日期选择 Icon
                         MyDatePickerIcon(
                             initialDate = holiday.Date,
                             onDateSelected = { newDate ->
-                                // 处理日期更新的逻辑
+                                val newDateMillis =
+                                    SimpleDateFormat("yyyy/MM/dd", Locale.US).parse(newDate)?.time
+                                if (newDateMillis != null) {
+                                    viewModel.updateHolidayDate(holiday.holidayId, newDateMillis)
+                                }
                             }
                         )
                     }
-                    Spacer(modifier = Modifier.width(60.dp))
+                    Spacer(modifier = Modifier.width(1.dp))
                     HorizontalDivider()
                 }
             )
         }
     }
+
 
     Padding16dp {
         ExtendedFloatingActionButton(
@@ -178,6 +187,7 @@ fun MyDatePickerIcon(initialDate: Long, onDateSelected: (String) -> Unit) {
         )
         AlertDialog(
             onDismissRequest = { showDatePicker = false },
+            backgroundColor = (Color(0xFFF0F5ED)),
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -202,7 +212,7 @@ fun MyDatePickerIcon(initialDate: Long, onDateSelected: (String) -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         title = {
                             Text(
-                                "Select date",
+                                "選擇日期",
                                 style = MaterialTheme.typography.body2,
                                 modifier = Modifier.padding(start = 24.dp, top = 16.dp)
                             )
@@ -211,8 +221,9 @@ fun MyDatePickerIcon(initialDate: Long, onDateSelected: (String) -> Unit) {
                     )
                 }
             },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        )
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+
+            )
     }
 }
 

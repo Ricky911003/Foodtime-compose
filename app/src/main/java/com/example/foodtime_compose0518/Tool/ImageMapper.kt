@@ -2,6 +2,9 @@ package com.example.foodtime_compose0518
 
 object ImageMapper {
     private val nameToImageMap = mapOf(
+        "紅燈" to R.drawable.redlight,
+        "黃燈" to R.drawable.yellowlight,
+        "綠燈" to R.drawable.greenlight,
         "絲瓜" to R.drawable.ingredients_loofah,
         "青花椒" to R.drawable.ingredinets_sichuan_peppercorn,
         "荔枝" to R.drawable.ingredients_lychee,
@@ -68,6 +71,7 @@ object ImageMapper {
         "蛋撻" to R.drawable.ingredients_egg_tart,
         "蛋塔" to R.drawable.ingredients_egg_tart,
         "雞蛋" to R.drawable.ingredients_egg,
+        "蛋" to R.drawable.ingredients_egg,
         "茄子" to R.drawable.ingredients_eggplant,
         "魚丸" to R.drawable.ingredients_fish_ball,
         "鯖魚" to R.drawable.ingredients_fish,
@@ -76,6 +80,7 @@ object ImageMapper {
         "鱸魚切片" to R.drawable.ingredients_fish,
         "鮭魚" to R.drawable.ingredients_fish,
         "鯛魚" to R.drawable.ingredients_fish,
+        "魚" to R.drawable.ingredients_fish,
         "秋刀魚" to R.drawable.ingredients_fish,
         "鱈魚" to R.drawable.ingredients_fish,
         "吳郭魚" to R.drawable.ingredients_fish,
@@ -547,10 +552,28 @@ object ImageMapper {
         "青豆" to R.drawable.ingredients_vegetable
     )
 
+    val holidayImageMapping = mapOf(
+        "新年" to R.drawable.holiday_new_year,
+        "情人節" to R.drawable.holiday_valentines_day,
+        "母親節" to R.drawable.holiday_love,
+        "父親節" to R.drawable.holiday_man,
+        "元宵節" to R.drawable.holiday_chinese_lantern,
+        "端午節" to R.drawable.holiday_paddler,
+        "中秋節" to R.drawable.holiday_mid_autumn,
+        "聖誕節" to R.drawable.holiday_santa_claus,
+        "萬聖節" to R.drawable.holiday_candy_bag,
+        "感恩節" to R.drawable.holiday_thanksgiving
+    )
+    val defaultImage = R.drawable.holiday_party
+
 
 
 
     fun getImageResourceByName(name: String): Int {
-        return nameToImageMap[name.lowercase()] ?: R.drawable.background
+        return nameToImageMap[name.lowercase()] ?: R.drawable.kaixuine
+    }
+
+    fun getHolidayImageResourceByName(name: String): Int {
+        return nameToImageMap[name.lowercase()] ?: R.drawable.holiday_party
     }
 }

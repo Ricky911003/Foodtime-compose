@@ -111,27 +111,6 @@ fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, h
         Spacer(modifier = Modifier.height(270.dp))
 
         Row {
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    primaryLight // 使用您定义的颜色
-                ),
-                onClick = {
-                    navController.popBackStack()
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(60.dp)
-                    .padding(horizontal = 30.dp)
-                    .padding(bottom = 16.dp),
-                shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
-            ) {
-                Text(
-                    "取消",
-                    fontSize = 16.sp,
-                    fontFamily = bodyFontFamily
-                )
-            }
-
 
             Button(
                 onClick = {
@@ -152,7 +131,7 @@ fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, h
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    onPrimaryLight // 使用您定义的颜色
+                    primaryLight // 使用您定义的颜色
                 ),
                 modifier = Modifier
                     .weight(1f)
@@ -163,6 +142,28 @@ fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, h
             ) {
                 Text(
                     text = "增加食材",
+                    fontSize = 16.sp,
+                    fontFamily = bodyFontFamily,
+                    style = TextStyle(color = onPrimaryLight)
+                )
+            }
+
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    onPrimaryLight // 使用您定义的颜色
+                ),
+                onClick = {
+                    navController.popBackStack()
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(60.dp)
+                    .padding(horizontal = 30.dp)
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
+            ) {
+                Text(
+                    "取消",
                     fontSize = 16.sp,
                     fontFamily = bodyFontFamily,
                     style = TextStyle(color = primaryLight)

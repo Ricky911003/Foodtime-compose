@@ -16,8 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -36,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -134,19 +141,39 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
 
         Spacer(modifier = Modifier.height(40.dp))
 
+        // 顯示數量
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "數量：",
-                fontSize = 28.sp,
-                modifier = Modifier.padding(start = 100.dp)
+                text = "數量",
+                fontSize = 20.sp,
+                modifier = Modifier.padding(end = 10.dp),
+                fontFamily = displayFontFamily
+            )
+            Spacer(modifier = Modifier.width(50.dp))
+            IconButton(onClick = { quantity += 1 }) {
+                Icon(
+                    Icons.Outlined.KeyboardArrowUp,
+                    contentDescription = "Increase number"
+                )
+            }
+
+            OutlinedTextField(
+                value = quantity.toString(),
+                onValueChange = {
+                    quantity = it.toIntOrNull() ?: 1
+                },
+                modifier = Modifier
+                    .width(120.dp)
+                    .padding(horizontal = 8.dp),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
 
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "$quantity 份",
-                fontSize = 28.sp,
-                modifier = Modifier.padding(end = 10.dp)
-            )
+            IconButton(onClick = { if (quantity > 0) quantity-- }) {
+                Icon(
+                    Icons.Outlined.KeyboardArrowDown,
+                    contentDescription = "Decrease number"
+                )
+            }
         }
 
 

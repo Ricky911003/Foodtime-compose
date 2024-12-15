@@ -22,7 +22,7 @@ class ItemViewModel(val dao: ItemDao) : ViewModel() {
     fun setItemName(itemName: String) {
         newItemName = itemName
     }
-   fun setItemId(itemId: Int) {
+    fun setItemId(itemId: Int) {
         newItemId = itemId
     }
 

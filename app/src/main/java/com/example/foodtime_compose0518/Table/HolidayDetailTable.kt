@@ -22,7 +22,7 @@ data class HolidayDetailTable(
     @ColumnInfo(name = "holidayId")
     val holidayId: Int, // 外鍵，連接到 HolidayTable
 
-    @ColumnInfo(name = "item_Id")
+    @ColumnInfo(name = "item_id")
     val itemId: Int,
 
     @ColumnInfo(name = "quantity")

@@ -1,7 +1,7 @@
 package com.example.foodtime_compose0518
 
 import ExpireScreen
-import FoodExpirationScreen
+import Foodexpiration_SettingScreen
 import HolidayScreen
 import Signal_Notification
 import android.annotation.SuppressLint
@@ -57,13 +57,16 @@ import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.secondaryContainerLight
 import com.example.foodtime_compose0518.ui.theme.surfaceContainerLowLight
 import androidx.activity.viewModels
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.ui.layout.ContentScale
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.navigation.NavController
 import androidx.room.Room
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OutOfQuotaPolicy
@@ -312,7 +315,7 @@ fun MyApp(
                         }
                     }
                     composable("Expired_food") { ExpireScreen(navController,stockViewModel) }
-                    composable("home_page") { Home_pageScreen() }
+                    composable("home_page") { Home_pageScreen(navController) }
                     composable("logout") { LoginScreen(navController) }
                     composable("addFragment") { AddFragmentScreen(navController, stockViewModel,itemViewModel) }
                     composable("FoodDetail/{stockitemId}") { backStackEntry ->
@@ -324,7 +327,7 @@ fun MyApp(
                     composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }
                     composable("setting") { setting(navController) }
                     composable("Signal_Notification"){Signal_Notification(navController, settingViewModel)}
-                    composable("Foodexpiration_setting"){FoodExpirationScreen(navController, settingViewModel)}
+                    composable("Foodexpiration_setting"){Foodexpiration_SettingScreen(navController, settingViewModel)}
                 }
             }
 
@@ -334,10 +337,9 @@ fun MyApp(
 
 
 @Composable
-fun Home_pageScreen() {
+fun Home_pageScreen(navController: NavController) {
     TemplateScreen(
         title = "首頁"
-
     ) {
         Column(
             modifier = Modifier
@@ -347,12 +349,20 @@ fun Home_pageScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.new_refrigerator),
+                painter = painterResource(id = R.drawable.cover_kang),
                 contentDescription = "Example Image",
                 modifier = Modifier
-                    .padding(20.dp)
-                    .size(450.dp) // 设置固定大小为 200dp
+                    .fillMaxWidth(0.99f) //
+                    .height(750.dp) // 具体高度，按需求调整
+                    .padding(8.dp)
+                    .clickable {
+                        navController.navigate("ingredients") // 点击跳转到 ingredients 页面
+                    },
+                contentScale = ContentScale.Fit,
             )
+
+
+
         }
     }
 }

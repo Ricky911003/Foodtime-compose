@@ -91,12 +91,13 @@ fun NoteItem(
 }
 
 @Composable
-fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable) -> Unit) {
+fun NoteContent(note: StockTable, cover1: Int, cover2: Int, onClick: (StockTable) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)  // 使用 IntrinsicSize.Min 來適應內容
-            .background(MaterialTheme.colorScheme.background),
+            .height(IntrinsicSize.Min) // 適應內容
+            .background(MaterialTheme.colorScheme.background)
+            .clickable { onClick(note) }, // 將整個 Row 設置為可點擊
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
@@ -106,7 +107,6 @@ fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable)
             modifier = Modifier
                 .size(50.dp)
                 .padding(start = 16.dp)
-                .clickable { onClick(note) }
         )
 
         Column(
@@ -121,12 +121,10 @@ fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = convertLongToDateString( note.expiryDate),
+                text = convertLongToDateString(note.expiryDate),
                 fontFamily = bodyFontFamily,
                 style = MaterialTheme.typography.bodyMedium
             )
-
-
         }
 
         Image(
@@ -135,10 +133,10 @@ fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable)
             modifier = Modifier
                 .size(50.dp)
                 .padding(end = 16.dp)
-                .clickable { onClick(note) }
         )
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)

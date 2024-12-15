@@ -25,5 +25,8 @@ interface FoodDao {
 
     @Delete
     suspend fun deleteHolidayDetail(item: HolidayDetailTable)
+
+    @Query("UPDATE holiday_table SET Date = :newDateMillis WHERE holidayId = :holidayId")
+    suspend fun updateHolidayDate(holidayId: Int, newDateMillis: Long)
 }
 
