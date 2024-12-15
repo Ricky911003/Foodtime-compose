@@ -43,26 +43,11 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
     private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
     val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
 
-    private val defaultSettings = listOf(
-        SettingTable(settingDay = 7, settingName = "豆芽菜", settingNotify = true),
-        SettingTable(settingDay = 14, settingName = "牛肉", settingNotify = true),
-        SettingTable(settingDay = 5, settingName = "花椰菜", settingNotify = true),
-        SettingTable(settingDay = 9, settingName = "高麗菜", settingNotify = true),
-        SettingTable(settingDay = 2, settingName = "蛤蜊", settingNotify = false),
-        SettingTable(settingDay = 5, settingName = "鱈魚", settingNotify = false),
-        SettingTable(settingDay = 28, settingName = "雞蛋", settingNotify = false),
-        SettingTable(settingDay = 7, settingName = "茄子", settingNotify = false),
-        SettingTable(settingDay = 30, settingName = "洋蔥", settingNotify = false),
-        SettingTable(settingDay = 12, settingName = "紅蘿蔔", settingNotify = false),
-        SettingTable(settingDay = 5, settingName = "豆腐", settingNotify = false),
-        SettingTable(settingDay = 5, settingName = "魚", settingNotify = false),
-        SettingTable(settingDay = 9, settingName = "番茄", settingNotify = false)
-    )
 
     // 根據設定名稱查詢設定天數
     suspend fun loadAdjustmentDays(settingName: String): Int {
         // 获取设置的天数
-        return settingDao.getAdjustmentDaysByName(settingName)
+        return settingDao.getAdjustmentDaysByName(settingName)?: 0
     }
 
     init {
@@ -95,32 +80,43 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
                                         if (existingItem == null) {
                                             // 获取 stockitemName 来查询调整天数
                                             val settingName = it.stockitemName ?: ""  // 获取 stockitemName
-                                            loadAdjustmentDays(settingName)  // 根据 stockitemName 查询设置的天数
-                                            val adjustmentDays = loadAdjustmentDays(settingName)
-                                            // 在主线程处理 adjustmentDays
 
-                                                // 确保 adjustmentDays 不为 null
+                                            // 判断当前节点是 nodeRef1 还是 nodeRef2
+                                            if (dataSnapshot.ref == nodeRef1) {
+                                                // 节点1：直接写入
+                                                val dataEntity = StockTable(
+                                                    it.stockitemId ?: 0,
+                                                    it.stockitemName ?: "",
+                                                    it.number,
+                                                    it.loginDate,
+                                                    it.loginDate, // 直接使用 loginDate
+                                                    it.uuid
+                                                )
+                                                // 添加到数据列表
+                                                dataList.add(dataEntity)
 
-                                                    // 计算调整后的过期日期
-                                                    val adjustedExpiryDate = it.loginDate + (adjustmentDays * 24 * 60 * 60 * 1000L)
+                                            } else if (dataSnapshot.ref == nodeRef2) {
+                                                // 节点2：需要调整日期
+                                                val adjustmentDays = loadAdjustmentDays(settingName)  // 根据 stockitemName 查询设置的天数
 
-                                                    // 创建新的 StockTable 实体
-                                                    val dataEntity = StockTable(
-                                                        it.stockitemId ?: 0,
-                                                        it.stockitemName ?: "",
-                                                        it.number,
-                                                        it.loginDate,
-                                                        adjustedExpiryDate,  // 使用调整后的过期日期
-                                                        it.uuid
-                                                    )
+                                                // 计算调整后的过期日期
+                                                val adjustedExpiryDate = it.loginDate + (adjustmentDays * 24 * 60 * 60 * 1000L)
 
-                                                    // 添加到数据列表
-                                                    dataList.add(dataEntity)
+                                                // 创建新的 StockTable 实体
+                                                val dataEntity = StockTable(
+                                                    it.stockitemId ?: 0,
+                                                    it.stockitemName ?: "",
+                                                    it.number,
+                                                    it.loginDate,
+                                                    adjustedExpiryDate,  // 使用调整后的过期日期
+                                                    it.uuid
+                                                )
+                                                // 添加到数据列表
+                                                dataList.add(dataEntity)
+                                            }
 
-                                                    // 标记为已写入，防止未来的重复
-                                                    dataSnapshot.ref.child("isWritten").setValue(true)
-
-
+                                            // 标记为已写入，防止未来的重复
+                                            dataSnapshot.ref.child("isWritten").setValue(true)
                                         }
                                     }
                                 } catch (e: DatabaseException) {
@@ -145,10 +141,9 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         }
 
         // 添加监听器到 Firebase 数据库
-        nodeRef2.addValueEventListener(combinedListener)
-        nodeRef1.addValueEventListener(combinedListener)
+        nodeRef2.addValueEventListener(combinedListener)  // 监听 nodeRef2，进行日期调整
+        nodeRef1.addValueEventListener(combinedListener)  // 监听 nodeRef1，直接写入
     }
-
 
 
 
@@ -257,11 +252,11 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         var currentDate = System.currentTimeMillis() // 現在日期
         val daysDifference = (expiryDate - loginDate) / (1000 * 60 * 60 * 24)
         var n =
-           when {
-            daysDifference <= 30 -> 2.75 // 30天以內
-            daysDifference in 30..180  -> 2.5 // 30到180天之間
-            else -> 2.3 // 超過180天
-        }
+            when {
+                daysDifference <= 30 -> 2.75 // 30天以內
+                daysDifference in 30..180  -> 2.5 // 30到180天之間
+                else -> 2.3 // 超過180天
+            }
         var passedtime = (currentDate-loginDate).toDouble()
         var totaltime = (expiryDate-loginDate).toDouble()
 

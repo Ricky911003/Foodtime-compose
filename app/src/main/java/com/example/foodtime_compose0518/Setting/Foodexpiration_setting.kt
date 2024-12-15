@@ -114,7 +114,7 @@ fun NoteContent(
             IconButton(onClick = {
                 val updatedDays = note.settingDay + 1
                 days = updatedDays.toString()
-                settingViewModel.updateSettingItem(note.copy(settingDay = updatedDays))
+                settingViewModel.updateSettingDay(note.settingName, updatedDays)
             }) {
                 Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加天数")
             }
@@ -132,8 +132,7 @@ fun NoteContent(
                             val newDays = newValue.toIntOrNull()
                             if (newDays != null && newDays >= 0) {
                                 days = newDays.toString()
-                                settingViewModel.updateSettingItem(note.copy(settingDay = newDays))
-                            }
+                                settingViewModel.updateSettingDay(note.settingName, newDays)                            }
                         }
                     },
                     singleLine = true,
@@ -158,7 +157,7 @@ fun NoteContent(
                 if (note.settingDay > 0) {
                     val updatedDays = note.settingDay - 1
                     days = updatedDays.toString()
-                    settingViewModel.updateSettingItem(note.copy(settingDay = updatedDays))
+                    settingViewModel.updateSettingDay(note.settingName, updatedDays)
                 }
             }) {
                 Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少天数")
@@ -168,10 +167,18 @@ fun NoteContent(
 }
 @Composable
 fun Foodexpiration_SettingScreen(navController: NavController, settingViewModel: SettingViewModel) {
-    val settingList = settingViewModel.settingList.collectAsState()
+    // Observe the settingList from the ViewModel
+    val settingList = settingViewModel.settingList.collectAsState(initial = emptyList())
+
+    // Filter out the unwanted settings
+    val filteredSettings = settingList.value.filter {
+        it.settingName != "RedLightEnabled" &&
+                it.settingName != "YellowLightEnabled" &&
+                it.settingName != "NotificationEnabled"
+    }
 
     LazyColumn {
-        items(settingList.value, key = { it.settingId }) { settingItem ->
+        items(filteredSettings, key = { it.settingId }) { settingItem ->
             val cover1 = ImageMapper.getImageResourceByName(settingItem.settingName)
             NoteItem3(
                 note = settingItem,

@@ -1,32 +1,140 @@
 package com.example.foodtime_compose0518
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 
 class SettingViewModel(val dao: SettingDao) : ViewModel() {
+    var newSettingName = ""
+    var newSettingDay = 0
+    var newSettingBoolean = false
 
-    // 使用 Compose 的 mutableStateOf 持有 UI 狀態
-    var newSettingName by mutableStateOf("")
-    var newSettingDay by mutableStateOf(0)
-    var newSettingBoolean by mutableStateOf(false)
 
-    // 使用 Flow 持有設定資料，提供給 UI 更新
-    val settingList: StateFlow<List<SettingTable>> = dao.getAllUsers()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val settingList: Flow<List<SettingTable>> = dao.getAllUsers().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+
+    fun setSettingName(name: String) {
+        newSettingName = name
+    }
+
+    fun setSettingDay(day: Int) {
+        newSettingDay = day
+    }
+
+    fun setSettingBoolean(notify: Boolean) {
+        newSettingBoolean = notify
+    }
+
+    fun addSetting() {
+        viewModelScope.launch {
+            dao.insert(
+                SettingTable(
+                    settingName = newSettingName,
+                    settingNotify =  newSettingBoolean,
+                    settingDay = newSettingDay
+                )
+            )
+        }
+    }
+
+    fun updateSetting(name: String, notify: Boolean, day: Int) {
+        viewModelScope.launch {
+            val setting = dao.getSettingByName(name)
+            if (setting != null) {
+                val updatedSetting = setting.copy(settingNotify = notify, settingDay = day)
+                dao.update(updatedSetting)
+            }
+        }
+    }
+
+    fun updateSettingDay(name: String, day: Int) {
+        viewModelScope.launch {
+            val setting = dao.getSettingByName(name)
+            if (setting != null) {
+                val updatedSetting = setting.copy(settingDay = day)
+                dao.update(updatedSetting)
+            }
+        }
+    }
+
+    fun deleteSetting(setting: SettingTable) {
+        viewModelScope.launch {
+            dao.delete(setting)
+        }
+    }
+
+    fun insertSetting(setting: SettingTable) {
+        viewModelScope.launch {
+            dao.insert(setting)
+        }
+    }
+
+    fun updateFoodExpiration(settingName: String, newDays: Int) {
+        viewModelScope.launch {
+            val setting = dao.getSettingByName(settingName)
+            if (setting != null) {
+                val updatedSetting = setting.copy(settingDay = newDays)
+                dao.update(updatedSetting)
+            }
+        }
+    }
+
+    init {
+        initializeSettings()
+    }
+
+
+
+    fun disableAllNotifications() {
+        viewModelScope.launch {
+            // 更新三個設定項目
+            dao.update(SettingTable(settingName = "NotificationEnabled", settingNotify = false, settingDay = 0))
+            dao.update(SettingTable(settingName = "RedLightEnabled", settingNotify = false, settingDay = 3)) // 保留 day 的值
+            dao.update(SettingTable(settingName = "YellowLightEnabled", settingNotify = false, settingDay = 5)) // 保留 day 的值
+        }
+    }
+
+    /**
+     * 初始化資料庫，如果資料庫中沒有資料則插入預設值
+     */
+    private fun loadDefaultSettings() {
+        viewModelScope.launch {
+            val existingSettings = dao.getAllUsers().first()
+            val existingNames = existingSettings.map { it.settingName }
+            val newSettings = defaultSettings.filter { it.settingName !in existingNames }
+
+            // 插入新的預設資料，ID 會自動生成
+            newSettings.forEach { dao.insert(it) }
+        }
+    }
+
+    private fun initializeSettings() {
+        viewModelScope.launch {
+            val existingSettings = dao.getAllUsers().firstOrNull() // 取得目前的設定資料
+            if (existingSettings.isNullOrEmpty()) {
+                // 初始化三筆資料
+                dao.insert(SettingTable(settingName = "RedLightEnabled", settingNotify = true, settingDay = 3))
+                dao.insert(SettingTable(settingName = "YellowLightEnabled", settingNotify = true, settingDay = 5))
+                dao.insert(SettingTable(settingName = "NotificationEnabled", settingNotify = true, settingDay = 0))
+            }
+        }
+    }
 
     // 預設食材資料
     private val defaultSettings = listOf(
-        SettingTable(settingDay = 3, settingName = "紅燈", settingNotify = false),
-        SettingTable(settingDay = 5, settingName = "黃燈", settingNotify = false),
-        SettingTable(settingDay = 7, settingName = "綠燈", settingNotify = false),
         SettingTable(settingDay = 7, settingName = "豆芽菜", settingNotify = true),
         SettingTable(settingDay = 14, settingName = "牛肉", settingNotify = true),
         SettingTable(settingDay = 5, settingName = "花椰菜", settingNotify = true),
@@ -45,127 +153,12 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
         SettingTable(settingDay = 12, settingName = "鮭魚", settingNotify = false),
         SettingTable(settingDay = 12, settingName = "蝦", settingNotify = false),
         SettingTable(settingDay = 5, settingName = "豆腐", settingNotify = false),
-        SettingTable(settingDay = 9, settingName = "番茄", settingNotify = false)
+        SettingTable(settingDay = 9, settingName = "番茄", settingNotify = false),
     )
+
 
     init {
         loadDefaultSettings()
     }
 
-    /**
-     * 初始化資料庫，如果資料庫中沒有資料則插入預設值
-     */
-    private fun loadDefaultSettings() {
-        viewModelScope.launch {
-            val existingSettings = dao.getAllUsers().first()
-            val existingNames = existingSettings.map { it.settingName }
-            val newSettings = defaultSettings.filter { it.settingName !in existingNames }
-
-            // 插入新的預設資料
-            newSettings.forEach { dao.insert(it) }
-        }
-    }
-
-    /**
-     * 設定新設定名稱
-     */
-    fun setSettingName(name: String) {
-        newSettingName = name
-    }
-
-    /**
-     * 設定新設定的天數
-     */
-    fun setSettingDay(day: Int) {
-        newSettingDay = day
-    }
-
-    /**
-     * 設定新設定的通知狀態
-     */
-    fun setSettingBoolean(notify: Boolean) {
-        newSettingBoolean = notify
-    }
-
-    /**
-     * 新增設定
-     */
-    fun addSetting() {
-        viewModelScope.launch {
-            dao.insert(
-                SettingTable(
-                    settingName = newSettingName,
-                    settingDay = newSettingDay,
-                    settingNotify = newSettingBoolean
-                )
-            )
-        }
-    }
-
-    /**
-     * 更新設定
-     */
-    fun updateSettingItem(setting: SettingTable) {
-        viewModelScope.launch {
-            dao.update(setting)
-        }
-    }
-
-    fun updateSetting(name: String, notify: Boolean, day: Int) {
-        viewModelScope.launch {
-            val setting = dao.getSettingByName(name)
-            if (setting != null) {
-                val updatedSetting = setting.copy(settingNotify = notify, settingDay = day)
-                dao.update(updatedSetting)
-            }
-        }
-    }
-
-    /**
-     * 更新特定設定的天數
-     */
-    fun updateSettingDay(name: String, day: Int) {
-        viewModelScope.launch {
-            val setting = dao.getSettingByName(name)
-            setting?.let {
-                val updatedSetting = it.copy(settingDay = day)
-                dao.update(updatedSetting)
-            }
-        }
-    }
-
-    /**
-     * 更新食材過期天數
-     */
-    fun updateFoodExpiration(settingName: String, newDays: Int) {
-        viewModelScope.launch {
-            val setting = dao.getSettingByName(settingName)
-            setting?.let {
-                val updatedSetting = it.copy(settingDay = newDays)
-                dao.update(updatedSetting)
-            }
-        }
-    }
-
-    /**
-     * 刪除設定
-     */
-    fun deleteSettingItem(setting: SettingTable) {
-        viewModelScope.launch {
-            dao.delete(setting)
-        }
-    }
-
-    /**
-     * 禁用所有通知
-     */
-    fun disableAllNotifications() {
-        viewModelScope.launch {
-            val settings = dao.getAllUsers().first()
-            settings.forEach { setting ->
-                val updatedSetting = setting.copy(settingNotify = false)
-                dao.update(updatedSetting)
-            }
-        }
-    }
 }
