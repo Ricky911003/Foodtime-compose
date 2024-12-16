@@ -128,44 +128,44 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
             Spacer(modifier = Modifier.height(70.dp))
 
             // 數量輸入區域
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "數量",
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 10.dp),
-                    fontFamily = displayFontFamily
-                )
-                Spacer(modifier = Modifier.width(50.dp))
-
-                IconButton(onClick = {
-                    quantity++ // 增加數量
-                }) {
-                    Icon(
-                        Icons.Outlined.KeyboardArrowUp,
-                        contentDescription = "增加數量"
-                    )
-                }
-                OutlinedTextField(
-                    value = quantity.toString(), // 顯示當前數量
-                    onValueChange = {
-                        quantity = it.toIntOrNull()?.takeIf { it > 0 } ?: 1 // 確保是正整數
-                    },
-                    label = { },
-                    modifier = Modifier
-                        .width(120.dp)
-                        .padding(horizontal = 8.dp),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                )
-                IconButton(onClick = {
-                    if (quantity > 1) quantity-- // 確保不會少於1
-                }) {
-                    Icon(
-                        Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = "減少數量"
-                    )
-                }
-
-            }
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                Text(
+//                    text = "數量",
+//                    fontSize = 20.sp,
+//                    modifier = Modifier.padding(end = 10.dp),
+//                    fontFamily = displayFontFamily
+//                )
+//                Spacer(modifier = Modifier.width(50.dp))
+//
+//                IconButton(onClick = {
+//                    quantity++ // 增加數量
+//                }) {
+//                    Icon(
+//                        Icons.Outlined.KeyboardArrowUp,
+//                        contentDescription = "增加數量"
+//                    )
+//                }
+//                OutlinedTextField(
+//                    value = quantity.toString(), // 顯示當前數量
+//                    onValueChange = {
+//                        quantity = it.toIntOrNull()?.takeIf { it > 0 } ?: 1 // 確保是正整數
+//                    },
+//                    label = { },
+//                    modifier = Modifier
+//                        .width(120.dp)
+//                        .padding(horizontal = 8.dp),
+//                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+//                )
+//                IconButton(onClick = {
+//                    if (quantity > 1) quantity-- // 確保不會少於1
+//                }) {
+//                    Icon(
+//                        Icons.Outlined.KeyboardArrowDown,
+//                        contentDescription = "減少數量"
+//                    )
+//                }
+//
+//            }
 
             Spacer(modifier = Modifier.height(60.dp))
 

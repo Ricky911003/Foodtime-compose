@@ -13,9 +13,6 @@ data class StockTable(
     @ColumnInfo(name = "stockitem_name")
     val stockitemName: String,
 
-    @ColumnInfo(name = "number")
-    val number: Int,
-
     @ColumnInfo(name = "login_date")
     val loginDate: Long,
 
@@ -24,8 +21,7 @@ data class StockTable(
 
     @ColumnInfo(name = "uuid")
     val uuid: String,
-)
-{
-   // 無參數構造函數
-   constructor() : this(0, "", 0, 0, 0,"")
+) {
+    // 无参数构造函数
+    constructor() : this(0, "", 0, 0, "")
 }

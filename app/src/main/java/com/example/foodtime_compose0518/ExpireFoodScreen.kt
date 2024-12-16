@@ -55,7 +55,9 @@ fun ExpiredNoteList(navController: NavController,stockViewModel: StockViewModel)
                     cover1 = ImageMapper.getImageResourceByName(note.stockitemName),
                     cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
                     stockViewModel = stockViewModel,
-                    onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },
+                    onClick = {
+//                        navController.navigate("FoodDetail/${note.stockitemId}",)
+                              },
                     onRemove ={ stockViewModel.deleteStockItem(note)
                     }
                 )

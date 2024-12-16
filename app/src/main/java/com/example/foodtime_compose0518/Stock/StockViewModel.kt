@@ -87,7 +87,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
                                                 val dataEntity = StockTable(
                                                     it.stockitemId ?: 0,
                                                     it.stockitemName ?: "",
-                                                    it.number,
+//                                                    it.number,
                                                     it.loginDate,
                                                     it.loginDate, // 直接使用 loginDate
                                                     it.uuid
@@ -106,7 +106,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
                                                 val dataEntity = StockTable(
                                                     it.stockitemId ?: 0,
                                                     it.stockitemName ?: "",
-                                                    it.number,
+//                                                    it.number,
                                                     it.loginDate,
                                                     adjustedExpiryDate,  // 使用调整后的过期日期
                                                     it.uuid
@@ -179,7 +179,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
             val datalist =
                 StockTable(
                     stockitemName = newStockName,
-                    number = newNumber,
+//                    number = newNumber,
                     loginDate = newLoginDate,
                     expiryDate = newExpiryDate,
                     uuid = newuuid

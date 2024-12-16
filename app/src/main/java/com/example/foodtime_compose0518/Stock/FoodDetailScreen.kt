@@ -82,34 +82,23 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    Foodtime0518_Theme {
-        Greeting("Android")
-    }
-}
-
-@Composable
-fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: StockViewModel) {
+fun DetailFragment(navController: NavController, stockitemId: Int, stockViewModel: StockViewModel) {
     stockViewModel.fetchStockItem(stockitemId)
-    val stocklistById=stockViewModel.stockItem.collectAsState(StockTable())
+    val stocklistById = stockViewModel.stockItem.collectAsState(StockTable())
     var expirationDate by remember { mutableStateOf(stocklistById.value.expiryDate) }
     var loginDate by remember { mutableStateOf(stocklistById.value.loginDate) }
     var stockname by remember { mutableStateOf(stocklistById.value.stockitemName) }
-    var quantity by remember { mutableStateOf(stocklistById.value.number) }
     var cover1 = ImageMapper.getImageResourceByName(stockname)
 
     LaunchedEffect(stocklistById.value) {
         expirationDate = stocklistById.value.expiryDate
         loginDate = stocklistById.value.loginDate
-        stockname=stocklistById.value.stockitemName
-        quantity = stocklistById.value.number
+        stockname = stocklistById.value.stockitemName
     }
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .background(Color(0xFFECF5FF))
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(40.dp))
@@ -139,46 +128,7 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
             )
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // 顯示數量
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "數量",
-                fontSize = 20.sp,
-                modifier = Modifier.padding(end = 10.dp),
-                fontFamily = displayFontFamily
-            )
-            Spacer(modifier = Modifier.width(50.dp))
-            IconButton(onClick = { quantity += 1 }) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowUp,
-                    contentDescription = "Increase number"
-                )
-            }
-
-            OutlinedTextField(
-                value = quantity.toString(),
-                onValueChange = {
-                    quantity = it.toIntOrNull() ?: 1
-                },
-                modifier = Modifier
-                    .width(120.dp)
-                    .padding(horizontal = 8.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-            )
-
-            IconButton(onClick = { if (quantity > 0) quantity-- }) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    contentDescription = "Decrease number"
-                )
-            }
-        }
-
-
-
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.height(95.dp))
 
         // 登入日期 DatePicker
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -188,8 +138,9 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            MyDatePickerComponent(initialDate = loginDate){selectedDate ->
-                loginDate = convertDateToLong( selectedDate)}
+            MyDatePickerComponent(initialDate = loginDate) { selectedDate ->
+                loginDate = convertDateToLong(selectedDate)
+            }
 
         }
 
@@ -208,7 +159,6 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                     expirationDate = convertDateToLong(selectedDate)
                 }
             }
-
         }
 
         Spacer(modifier = Modifier.height(50.dp))
@@ -223,17 +173,17 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Button(
-                    onClick = {val dataEntity = StockTable(
-                        stockitemId = stockitemId,
-                        stockitemName = stockname,
-                        number = quantity,
-                        loginDate = loginDate,
-                        expiryDate = expirationDate,
-                        uuid = ""
-
-                    )
+                    onClick = {
+                        val dataEntity = StockTable(
+                            stockitemId = stockitemId,
+                            stockitemName = stockname,
+                            loginDate = loginDate,
+                            expiryDate = expirationDate,
+                            uuid = ""
+                        )
                         stockViewModel.updateStockItem(dataEntity)
-                        navController.popBackStack() },
+                        navController.popBackStack()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         primaryLight // 使用您定义的颜色
                     ),
@@ -286,6 +236,7 @@ fun convertDateToLong(dateString: String): Long {
     val date = dateFormat.parse(dateString)
     return date?.time ?: 0L
 }
+
 
 
 
