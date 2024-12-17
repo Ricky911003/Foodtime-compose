@@ -24,6 +24,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.viewModelScope
+import com.example.foodtime_compose0518.SettingTable
+import com.example.foodtime_compose0518.StockTable
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -134,3 +139,60 @@ fun convertMillisToDate(millis: Long): String {
     return formatter.format(Date(millis))
 }
 
+
+//// 預設食材資料
+//private val defaultSettings = listOf(
+//    SettingTable(settingDay = 7, settingName = "豆芽菜", settingNotify = true),
+//    SettingTable(settingDay = 14, settingName = "牛肉", settingNotify = true),
+//    SettingTable(settingDay = 5, settingName = "花椰菜", settingNotify = true),
+//    SettingTable(settingDay = 9, settingName = "高麗菜", settingNotify = true),
+//    SettingTable(settingDay = 28, settingName = "雞肉", settingNotify = false),
+//    SettingTable(settingDay = 2, settingName = "蛤蜊", settingNotify = false),
+//    SettingTable(settingDay = 5, settingName = "鱈魚", settingNotify = false),
+//    SettingTable(settingDay = 28, settingName = "蛋", settingNotify = false),
+//    SettingTable(settingDay = 7, settingName = "茄子", settingNotify = false),
+//    SettingTable(settingDay = 7, settingName = "魚", settingNotify = false),
+//    SettingTable(settingDay = 30, settingName = "洋蔥", settingNotify = false),
+//    SettingTable(settingDay = 7, settingName = "蒜頭", settingNotify = false),
+//    SettingTable(settingDay = 28, settingName = "豬肉", settingNotify = false),
+//    SettingTable(settingDay = 28, settingName = "蘿蔔", settingNotify = false),
+//    SettingTable(settingDay = 12, settingName = "紅蘿蔔", settingNotify = false),
+//    SettingTable(settingDay = 12, settingName = "鮭魚", settingNotify = false),
+//    SettingTable(settingDay = 12, settingName = "蝦", settingNotify = false),
+//    SettingTable(settingDay = 5, settingName = "豆腐", settingNotify = false),
+//    SettingTable(settingDay = 9, settingName = "番茄", settingNotify = false),
+//)
+//
+//
+//init {
+//    loadDefaultSettings()
+//}
+//
+///**
+// * 初始化資料庫，如果資料庫中沒有資料則插入預設值
+// */
+//private fun loadDefaultSettings() {
+//    viewModelScope.launch {
+//        val existingSettings = dao.getAllUsers().first()
+//        val existingNames = existingSettings.map { it.settingName }
+//        val newSettings = defaultSettings.filter { it.settingName !in existingNames }
+//
+//        // 插入新的預設資料，ID 會自動生成
+//        newSettings.forEach { dao.insert(it) }
+//    }
+//}
+
+//fun addStockItem() {
+//    viewModelScope.launch {
+//        val datalist =
+//            StockTable(
+//                stockitemName = newStockName,
+////                    number = newNumber,
+//                loginDate = newLoginDate,
+//                expiryDate = newExpiryDate,
+//                uuid = newuuid
+//
+//            )
+//        dao.insert(listOf(datalist))
+//    }
+//}

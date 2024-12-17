@@ -173,17 +173,17 @@ fun DetailFragment(navController: NavController, stockitemId: Int, stockViewMode
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Button(
-                    onClick = {
-                        val dataEntity = StockTable(
-                            stockitemId = stockitemId,
-                            stockitemName = stockname,
-                            loginDate = loginDate,
-                            expiryDate = expirationDate,
-                            uuid = ""
-                        )
+                    onClick = {val dataEntity = StockTable(
+                        stockitemId = stockitemId,
+                        stockitemName = stockname,
+                        number = 0,
+                        loginDate = loginDate,
+                        expiryDate = expirationDate,
+                        uuid = ""
+
+                    )
                         stockViewModel.updateStockItem(dataEntity)
-                        navController.popBackStack()
-                    },
+                        navController.popBackStack() },
                     colors = ButtonDefaults.buttonColors(
                         primaryLight // 使用您定义的颜色
                     ),

@@ -21,51 +21,48 @@ import com.example.foodtime_compose0518.ImageMapper
 @Composable
 fun ExpireScreen(navController: NavController,stockViewModel:StockViewModel) {
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column {
-                ExpiredNoteList(navController =navController , stockViewModel =stockViewModel )
-                Spacer(modifier = Modifier.weight(1f))
-            }
-            com.example.foodtime_compose0518.Padding16dp {
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        stockViewModel.deleteExpiredStockItem()
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Filled.Add,
-                            "Extended floating action button."
-                        )
-                    },
-                    text = { Text(text = "刪除全部") },
-                )
-            }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column {
+            ExpiredNoteList(navController =navController , stockViewModel =stockViewModel )
+            Spacer(modifier = Modifier.weight(1f))
+        }
+        com.example.foodtime_compose0518.Padding16dp {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    stockViewModel.deleteExpiredStockItem()
+                },
+                icon = {
+                    Icon(
+                        Icons.Filled.Add,
+                        "Extended floating action button."
+                    )
+                },
+                text = { Text(text = "刪除全部") },
+            )
         }
     }
+}
 @Composable
 fun ExpiredNoteList(navController: NavController,stockViewModel: StockViewModel) {
 
-        val datalist=stockViewModel.expiredList.collectAsState(emptyList())
+    val datalist=stockViewModel.expiredList.collectAsState(emptyList())
 
 
-        LazyColumn {
-            items(datalist.value, key = { it.stockitemId }) { note ->
-                NoteItem(
-                    note = note,
-                    cover1 = ImageMapper.getImageResourceByName(note.stockitemName),
-                    cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
-                    stockViewModel = stockViewModel,
-                    onClick = {
-//                        navController.navigate("FoodDetail/${note.stockitemId}",)
-                              },
-                    onRemove ={ stockViewModel.deleteStockItem(note)
-                    }
-                )
-                // 移除了 Divider
-                Divider()
-            }
+    LazyColumn {
+        items(datalist.value, key = { it.stockitemId }) { note ->
+            NoteItem(
+                note = note,
+                cover1 = ImageMapper.getImageResourceByName(note.stockitemName),
+                cover2 = R.drawable.skull,
+                stockViewModel = stockViewModel,
+                onClick = {
+//                    navController.navigate("FoodDetail/${note.stockitemId}",)
+                          },
+                onRemove ={ stockViewModel.deleteStockItem(note)
+                }
+            )
+            // 移除了 Divider
+            Divider()
         }
     }
-
-
-
+}

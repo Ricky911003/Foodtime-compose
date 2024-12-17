@@ -26,5 +26,7 @@ interface SettingDao {
     @Query("SELECT * FROM setting_table WHERE name = :name LIMIT 1")
     suspend fun getSettingByName(name: String): SettingTable?
     @Query("SELECT day FROM setting_table WHERE name = :settingName LIMIT 1")
-    suspend fun getAdjustmentDaysByName(settingName: String): Int
+    suspend fun getAdjustmentDaysByName(settingName: String): Int?
+
+
 }

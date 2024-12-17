@@ -54,6 +54,8 @@ interface StockDao {
         @Query("DELETE FROM stock_table WHERE expiry_date < :currentDate")
         suspend fun deleteExpiredStockItems(currentDate: Long = System.currentTimeMillis())
 
+
+
         companion object {
                 fun getCurrentDateWithoutTime(): Long {
                         val sdf = SimpleDateFormat("yyyy-MM-dd")

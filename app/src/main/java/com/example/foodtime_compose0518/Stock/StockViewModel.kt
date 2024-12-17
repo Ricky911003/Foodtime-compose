@@ -1,7 +1,10 @@
 package com.example.foodtime_compose0518
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.google.firebase.database.DataSnapshot
@@ -10,12 +13,14 @@ import com.google.firebase.database.DatabaseException
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
@@ -33,12 +38,39 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
     var newLoginDate: Long = 0L
     var newExpiryDate: Long = 0L
     var newuuid = ""
-    private val freshrange=0.5
-    private val unfreshrange=0.2
+
     private val nodeRef1 = Firebase.database.reference.child("a")
     private val nodeRef2 = Firebase.database.reference.child("b")
     private val _stockItem = MutableStateFlow<StockTable>(StockTable())
     val stockItem: Flow<StockTable> get() = _stockItem
+
+    // 使用 StateFlow 儲存狀態
+    private val _redLightDays = MutableStateFlow(0)
+    val redLightDays: StateFlow<Int> = _redLightDays.asStateFlow()
+
+    private val _yellowLightDays = MutableStateFlow(0)
+    val yellowLightDays: StateFlow<Int> = _yellowLightDays.asStateFlow()
+
+    // 做除法運算的狀態，避免除以零
+
+
+    init {
+        loadLightDays()
+    }
+
+    private fun loadLightDays() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val redResult = settingDao.getAdjustmentDaysByName("RedLightEnabled") ?: 0
+            val yellowResult = settingDao.getAdjustmentDaysByName("YellowLightEnabled") ?: 0
+
+            // 更新 StateFlow 的值
+            _redLightDays.value = redResult
+            _yellowLightDays.value = yellowResult
+        }
+    }
+
+
+
 
     private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
     val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
@@ -50,19 +82,11 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         return settingDao.getAdjustmentDaysByName(settingName)?: 0
     }
 
-
     private val _dataFlow = MutableStateFlow<List<StockTable>>(emptyList())
     val dataFlow: StateFlow<List<StockTable>> get() = _dataFlow
 
-
     init {
 
-            viewModelScope.launch {
-                dao.getUnexpiredStockItems()
-                    .collect { items ->
-                        _UnexpiredList.value = items
-                    }
-            }
         Log.d("FirebaseDebug", "NodeRef1 path: ${nodeRef1.path}")
         Log.d("FirebaseDebug", "NodeRef2 path: ${nodeRef2.path}")
 
@@ -92,7 +116,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
                                             val dataEntity = StockTable(
                                                 it.stockitemId ?: 0,
                                                 it.stockitemName ?: "",
-//                                                it.number,
+                                                it.number,
                                                 it.loginDate,
                                                 it.loginDate, // Directly use loginDate
                                                 it.uuid
@@ -146,7 +170,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
                                             val dataEntity = StockTable(
                                                 it.stockitemId ?: 0,
                                                 it.stockitemName ?: "",
-//                                                it.number,
+                                                it.number,
                                                 it.loginDate,
                                                 adjustedExpiryDate, // Use adjusted expiry date
                                                 it.uuid
@@ -217,7 +241,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
             val datalist =
                 StockTable(
                     stockitemName = newStockName,
-//                    number = newNumber,
+                    number = newNumber,
                     loginDate = newLoginDate,
                     expiryDate = newExpiryDate,
                     uuid = newuuid
@@ -283,6 +307,14 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
             _UnexpiredList.value = dao.getUnexpiredStockItems().first()
         }
     }
+//    fun getLightDays(LightName:String): Int {
+//        var LightDays = 0
+//        CoroutineScope(Dispatchers.IO).launch {
+//            LightDays = settingDao.getAdjustmentDaysByName(LightName)
+//
+//        }
+//        return LightDays
+//    }
 
     fun freshness(note: StockTable): Double {
         var loginDate = note.loginDate //登入日期
@@ -302,12 +334,18 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         return result
     }
     fun lightSignal(freshness: Double): Int {
+
+        val redlight = redLightDays.value/100.0
+        val yellowlight = yellowLightDays.value/100.0
+        Log.e("lightSignalkk","redLightDays$redlight yellowLightDays$yellowlight")
         return when {
-            freshness in 0.5..1.0 -> R.drawable.greenlight // Fresh
-            freshness in 0.2..0.5 -> R.drawable.yellowlight
-            freshness in 0.000001..0.2 -> R.drawable.redlight
+            freshness in yellowlight..1.0 -> R.drawable.greenlight // Fresh
+            freshness in redlight..yellowlight -> R.drawable.yellowlight
+            freshness in 0.000001..redlight -> R.drawable.redlight
             else -> R.drawable.skull // Not fresh
         }
+
+
     }
 
 }

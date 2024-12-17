@@ -96,7 +96,17 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
         initializeSettings()
     }
 
-
+    private fun initializeSettings() {
+        viewModelScope.launch {
+            val existingSettings = dao.getAllUsers().firstOrNull() // 取得目前的設定資料
+            if (existingSettings.isNullOrEmpty()) {
+                // 初始化三筆資料
+                dao.insert(SettingTable(settingName = "RedLightEnabled", settingNotify = true, settingDay = 20))
+                dao.insert(SettingTable(settingName = "YellowLightEnabled", settingNotify = true, settingDay = 50))
+                dao.insert(SettingTable(settingName = "NotificationEnabled", settingNotify = true, settingDay = 0))
+            }
+        }
+    }
 
     fun disableAllNotifications() {
         viewModelScope.launch {
@@ -104,32 +114,6 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
             dao.update(SettingTable(settingName = "NotificationEnabled", settingNotify = false, settingDay = 0))
             dao.update(SettingTable(settingName = "RedLightEnabled", settingNotify = false, settingDay = 3)) // 保留 day 的值
             dao.update(SettingTable(settingName = "YellowLightEnabled", settingNotify = false, settingDay = 5)) // 保留 day 的值
-        }
-    }
-
-    /**
-     * 初始化資料庫，如果資料庫中沒有資料則插入預設值
-     */
-    private fun loadDefaultSettings() {
-        viewModelScope.launch {
-            val existingSettings = dao.getAllUsers().first()
-            val existingNames = existingSettings.map { it.settingName }
-            val newSettings = defaultSettings.filter { it.settingName !in existingNames }
-
-            // 插入新的預設資料，ID 會自動生成
-            newSettings.forEach { dao.insert(it) }
-        }
-    }
-
-    private fun initializeSettings() {
-        viewModelScope.launch {
-            val existingSettings = dao.getAllUsers().firstOrNull() // 取得目前的設定資料
-            if (existingSettings.isNullOrEmpty()) {
-                // 初始化三筆資料
-                dao.insert(SettingTable(settingName = "RedLightEnabled", settingNotify = true, settingDay = 3))
-                dao.insert(SettingTable(settingName = "YellowLightEnabled", settingNotify = true, settingDay = 5))
-                dao.insert(SettingTable(settingName = "NotificationEnabled", settingNotify = true, settingDay = 0))
-            }
         }
     }
 
@@ -154,11 +138,27 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
         SettingTable(settingDay = 12, settingName = "蝦", settingNotify = false),
         SettingTable(settingDay = 5, settingName = "豆腐", settingNotify = false),
         SettingTable(settingDay = 9, settingName = "番茄", settingNotify = false),
-    )
+        SettingTable(settingDay = 9, settingName = "軟體動物", settingNotify = false),
+
+        )
 
 
     init {
         loadDefaultSettings()
+    }
+
+    /**
+     * 初始化資料庫，如果資料庫中沒有資料則插入預設值
+     */
+    private fun loadDefaultSettings() {
+        viewModelScope.launch {
+            val existingSettings = dao.getAllUsers().first()
+            val existingNames = existingSettings.map { it.settingName }
+            val newSettings = defaultSettings.filter { it.settingName !in existingNames }
+
+            // 插入新的預設資料，ID 會自動生成
+            newSettings.forEach { dao.insert(it) }
+        }
     }
 
 }
